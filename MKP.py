@@ -1,8 +1,9 @@
 import os
 import hashlib
 import base58
-import sqlite3
 import gzip
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -10,8 +11,6 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.progressbar import ProgressBar
 from kivy.clock import Clock
 
@@ -32,12 +31,12 @@ class MainScreen(Screen):
         convert_btn.bind(on_press=self.generate_wifs)
         layout.add_widget(convert_btn)
 
-        save_btn = Button(text="Save to Database")
-        save_btn.bind(on_press=self.save_to_db)
+        save_btn = Button(text="Save to File")
+        save_btn.bind(on_press=self.save_to_file)
         layout.add_widget(save_btn)
 
-        load_btn = Button(text="Load Last Key from Database")
-        load_btn.bind(on_press=self.load_from_db)
+        load_btn = Button(text="Load Last Saved Key")
+        load_btn.bind(on_press=self.load_from_file)
         layout.add_widget(load_btn)
 
         self.compressed_wif = Label(text="Compressed WIF: ")
@@ -46,7 +45,6 @@ class MainScreen(Screen):
         self.uncompressed_wif = Label(text="Uncompressed WIF: ")
         layout.add_widget(self.uncompressed_wif)
 
-        # Button to switch to puzzle-solving screen
         solve_puzzles_btn = Button(text="Solve Puzzles")
         solve_puzzles_btn.bind(on_press=self.go_to_puzzle_screen)
         layout.add_widget(solve_puzzles_btn)
@@ -82,8 +80,8 @@ class MainScreen(Screen):
         self.compressed_wif.text = f"Compressed WIF: {self.to_wif(pk, compressed=True)}"
         self.uncompressed_wif.text = f"Uncompressed WIF: {self.to_wif(pk, compressed=False)}"
 
-    def save_to_db(self, instance):
-        """Save generated keys to the SQLite database."""
+    def save_to_file(self, instance):
+        """Save generated keys to a text file."""
         pk = self.private_key.text.strip()
         if len(pk) != 64:
             return
@@ -91,26 +89,33 @@ class MainScreen(Screen):
         compressed_wif = self.to_wif(pk, compressed=True)
         uncompressed_wif = self.to_wif(pk, compressed=False)
 
-        conn = sqlite3.connect("keys.db")
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO keys (private_key, compressed_wif, uncompressed_wif) VALUES (?, ?, ?)", 
-                       (pk, compressed_wif, uncompressed_wif))
-        conn.commit()
-        conn.close()
+        with open(r"E:\saved_keys.txt", "a") as file:
+            file.write(f"Private Key: {pk}\nCompressed WIF: {compressed_wif}\nUncompressed WIF: {uncompressed_wif}\n\n")
 
-    def load_from_db(self, instance):
-        """Retrieve the last saved private key from the database."""
-        conn = sqlite3.connect("keys.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT private_key, compressed_wif, uncompressed_wif FROM keys ORDER BY id DESC LIMIT 1")
-        result = cursor.fetchone()
-        conn.close()
+    def load_from_file(self, instance):
+        """Retrieve the last saved private key from the text file."""
+        try:
+            with open(r"E:\saved_keys.txt", "r") as file:
+                lines = file.readlines()
+                if len(lines) < 3:
+                    popup = Popup(title="Error",
+                                  content=Label(text="No valid saved keys found."),
+                                  size_hint=(0.5, 0.3))
+                    popup.open()
+                    return
 
-        if result:
-            pk, compressed_wif, uncompressed_wif = result
-            self.private_key.text = pk
-            self.compressed_wif.text = f"Compressed WIF: {compressed_wif}"
-            self.uncompressed_wif.text = f"Uncompressed WIF: {uncompressed_wif}"
+                pk = lines[-3].split(": ")[1].strip()
+                compressed_wif = lines[-2].split(": ")[1].strip()
+                uncompressed_wif = lines[-1].split(": ")[1].strip()
+
+                self.private_key.text = pk
+                self.compressed_wif.text = f"Compressed WIF: {compressed_wif}"
+                self.uncompressed_wif.text = f"Uncompressed WIF: {uncompressed_wif}"
+        except FileNotFoundError:
+            popup = Popup(title="Error",
+                          content=Label(text="No saved keys file found."),
+                          size_hint=(0.5, 0.3))
+            popup.open()
 
     def go_to_puzzle_screen(self, instance):
         """Switch to the puzzle-solving screen."""
@@ -118,7 +123,7 @@ class MainScreen(Screen):
 
 
 class PuzzleScreen(Screen):
-    """Screen for solving puzzles and displaying progress."""
+    """Multi-threaded puzzle solving with range-based WIF generation."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation="vertical")
@@ -147,51 +152,46 @@ class PuzzleScreen(Screen):
         self.manager.current = "main_screen"
 
     def solve_puzzle(self, instance):
-        """Check if the puzzle is already solved and mark progress."""
+        """Uses multi-threading to generate private keys within puzzle-defined ranges."""
         puzzle_id = self.puzzle_number.text.strip()
+        puzzle_ranges = {
+            "69": (0x100000000000000000, 0x1FFFFFFFFFFFFFFFFF),
+            "71": (0x400000000000000000, 0x7FFFFFFFFFFFFFFFFF),
+            "135": (0x4000000000000000000000000000000000000, 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF),
+        }
 
-        if not puzzle_id:
-            popup = Popup(title="Error",
-                          content=Label(text="Please enter a puzzle number before proceeding."),
+        if puzzle_id not in puzzle_ranges:
+            popup = Popup(title="Invalid Puzzle",
+                          content=Label(text="Puzzle not found in the supported range."),
                           size_hint=(0.5, 0.3))
             popup.open()
             return
 
-        conn = sqlite3.connect("keys.db")
-        cursor = conn.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS puzzles (puzzle_id TEXT PRIMARY KEY, status TEXT)")
-        conn.commit()
+        start_range, end_range = puzzle_ranges[puzzle_id]
+        self.multi_threaded_wif_generation(puzzle_id, start_range, end_range)
 
-        cursor.execute("SELECT status FROM puzzles WHERE puzzle_id = ?", (puzzle_id,))
-        result = cursor.fetchone()
+    def multi_threaded_wif_generation(self, puzzle_id, start_range, end_range):
+        """Parallel WIF generation using multiple threads."""
+        output_dir = r"E:\puzzle_results"
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, f"puzzle_{puzzle_id}_results.txt")
 
-        if result and result[0] == "SOLVED":
-            popup = Popup(title="Puzzle Already Solved",
-                          content=Label(text="Puzzle Already Solved, continue?"),
-                          size_hint=(0.5, 0.3))
-            popup.open()
-        else:
-            cursor.execute("INSERT OR REPLACE INTO puzzles (puzzle_id, status) VALUES (?, ?)", (puzzle_id, "SOLVED"))
-            conn.commit()
-            conn.close()
+        def generate_key_wif(key):
+            wif_compressed = self.to_wif(hex(key)[2:], compressed=True)
+            wif_uncompressed = self.to_wif(hex(key)[2:], compressed=False)
+            return f"Private Key: {hex(key)}\nCompressed WIF: {wif_compressed}\nUncompressed WIF: {wif_uncompressed}\n\n"
 
-            self.status_label.text = f"Puzzle {puzzle_id} marked as SOLVED"
-            Clock.schedule_interval(self.update_progress, 0.1)  # Start progress bar animation
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            results = list(executor.map(generate_key_wif, range(start_range, end_range)))
 
-            # Save puzzle info to compressed text file
-            self.save_compressed_data(puzzle_id)
+        with open(output_file, "w") as file:
+            file.writelines(results)
 
-    def save_compressed_data(self, puzzle_id):
-        """Save puzzle progress to a compressed text file."""
-        with gzip.open(f"E:\\solved_puzzles.txt.gz", "ab") as file:
-            file.write(f"Puzzle {puzzle_id} - SOLVED\n".encode())
+        popup = Popup(title="Generation Complete",
+                      content=Label(text=f"WIFs saved in {output_file}"),
+                      size_hint=(0.5, 0.3))
+        popup.open()
 
-    def update_progress(self, dt):
-        """Animate progress bar."""
-        if self.progress_bar.value < 100:
-            self.progress_bar.value += 10
-        else:
-            Clock.unschedule(self.update_progress)
 
 class WIFApp(App):
     def build(self):
