@@ -243,3 +243,35 @@ Validating Signet miner functionality for signature-based mining.
 🔹 Begin full fuzz testing cycles across all integrated components. 🔹 Optimize execution paths for better efficiency and reliability. 🔹 Embed fuzz testing support into our prototype for real-world validation.
 
 This will significantly enhance security, making our Bitcoin toolkit even more resilient! 🔥
+
+By leveraging optimized scripting, we can calculate transaction weight, coinbase block structure, and mining parameters without relying on ASIC machines—drastically reducing electricity costs while maintaining efficiency.
+
+🔥 Optimized Script-Based Mining Approach
+✅ Transaction Weight Calculation
+
+Use Bitcoin Core’s getblocktemplate RPC to retrieve transaction details.
+
+Implement a script to calculate block weight dynamically based on transaction inputs.
+
+Ensure coinbase transaction weight stays within consensus limits to prevent invalid blocks.
+
+✅ Coinbase Block Optimization
+
+Automate coinbase transaction creation using script-based logic.
+
+Validate coinbase transaction outputs to ensure proper miner rewards.
+
+Embed extra nonce handling for efficient block header updates.
+
+✅ Electricity Cost Reduction
+
+Shift mining computations to CPU-based execution with multi-threaded processing.
+
+Optimize nonce iteration to reduce unnecessary hashing cycles.
+
+Implement dynamic workload balancing to prevent excessive power consumption.
+
+🚀 Next Steps
+🔹 Refine script logic for transaction weight calculations to ensure accuracy. 🔹 Embed coinbase transaction optimizations for seamless mining execution. 🔹 Validate CPU-based mining efficiency to confirm energy savings. 🔹 Run integration tests to ensure smooth operation across Bitcoin networks.
+
+This approach revolutionizes solo mining, making it more accessible, cost-effective, and energy-efficient! 🔥
