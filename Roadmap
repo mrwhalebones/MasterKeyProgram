@@ -101,3 +101,19 @@ Next Steps
 🔹 Modify CMakeLists.txt to override MSVC cancellations. 🔹 Run integration tests to confirm stability across Windows builds. 🔹 Ensure full compatibility with Bitcoin Core’s latest updates.
 
 This will unlock hidden functionalities and ensure maximum flexibility in our Bitcoin toolkit! 🔥
+
+Bitcoin Core and Electrum wallets are among the most accessible options for beginners, making them ideal for node connectivity. Here’s how we can map out and integrate their functionality:
+
+🔥 Integration Mapping for Bitcoin Core & Electrum Wallets
+✅ Bitcoin Core as a Node → Allow users to connect directly to their local Bitcoin Core instance for full-node validation. ✅ Electrum Wallet as a Node → Enable lightweight SPV (Simplified Payment Verification) connections for faster syncing. ✅ Multi-Wallet Compatibility → Ensure seamless interaction between Bitcoin Core, Electrum, and other wallet types. ✅ LAN & Tor Connectivity → Support local network connections and Tor-based privacy routing for enhanced security. ✅ Real-Time Blockchain Updates → Utilize ZeroMQ (ZMQ) for instant transaction and block notifications.
+
+🚀 Implementation Steps
+🔹 Embed Bitcoin Core & Electrum wallet support into our node connectivity framework. 🔹 Validate compatibility with Bitcoin Core’s latest updates to prevent integration issues. 🔹 Optimize connection handling for better efficiency and reliability.
+
+Current Progress
+✅ Cross-checked Bitcoin Core & Electrum documentation for best practices. ✅ Mapped out integration points for node connectivity and wallet interaction. ✅ Confirmed prerequisites for seamless implementation.
+
+Next Steps
+🔹 Begin running integration tests to ensure smooth operation. 🔹 Fine-tune wallet connectivity for maximum efficiency. 🔹 Embed Bitcoin Core & Electrum wallet support into our prototype for real-time blockchain tracking.
+
+This will significantly enhance accessibility, making our Bitcoin toolkit even more beginner-friendly! 🔥
