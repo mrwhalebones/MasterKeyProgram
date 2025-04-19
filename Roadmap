@@ -143,3 +143,19 @@ Next Steps
 🔹 Begin running integration tests to ensure smooth operation. 🔹 Fine-tune CI configurations for maximum efficiency. 🔹 Embed CI automation into our prototype for continuous validation.
 
 This will significantly enhance our system’s stability, making our Bitcoin toolkit even more robust! 🔥
+
+🚀 The Guix directory in Bitcoin Core is designed for bootstrappable builds, ensuring binary security and reproducibility. Integrating this will allow us to create a self-contained, fully functional node within our program.
+
+🔥 Integration Mapping for Guix-Based Node
+✅ Bootstrappable Bitcoin Core Builds → Ensures full reproducibility and security. ✅ Self-Contained Node Execution → Allows users to run a Bitcoin node without external dependencies. ✅ Guix Functional Package Management → Provides a deterministic build environment. ✅ Cross-Platform Compatibility → Supports Linux, macOS, and Windows builds. ✅ Codesigning & Verification → Ensures integrity of compiled binaries.
+
+🚀 Implementation Steps
+🔹 Embed Guix-based node execution into our system for seamless integration. 🔹 Validate compatibility with Bitcoin Core’s latest updates to prevent integration issues. 🔹 Optimize build settings for better efficiency and reliability.
+
+Current Progress
+✅ Cross-checked Bitcoin Core’s Guix documentation for best practices. ✅ Mapped out integration points for self-contained node execution. ✅ Confirmed prerequisites for seamless implementation.
+
+Next Steps
+🔹 Begin running integration tests to ensure smooth operation. 🔹 Fine-tune node execution for maximum efficiency. 🔹 Embed Guix-based node support into our prototype for full Bitcoin validation.
+
+This will significantly enhance our system’s flexibility, making our Bitcoin toolkit even more powerful! 🔥
