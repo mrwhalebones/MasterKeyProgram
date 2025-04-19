@@ -88,3 +88,16 @@ This will significantly enhance our system’s flexibility, making our Bitcoin t
 ✅ Completed Work (~4 months) ✅ Current Refinements (~4-5 months) ✅ Final Testing & Deployment (~3 months)
 
 Estimated Total Development Time: ~10-12 months for full completion 🚀 (now I am attempting to have this done within a weeks time. I'm one guy with the aid of technology.)
+
+The CMake files in the contrib/devtools directory define build configurations for various development tools in Bitcoin Core. Some MSVC-specific cancellations restrict certain functionalities, likely for compatibility reasons, but we can override them where possible to ensure full functionality.
+
+🔥 Key Findings in CMake Files
+✅ MSVC Restrictions → Some compiler flags disable RTTI and exceptions. ✅ Feature Disabling → Certain dependencies like LibEdit, ZLIB, and Terminfo are disabled. ✅ Clang-Tidy Integration → Ensures Bitcoin Core follows strict coding standards. ✅ Multiprocess Handling → Some threading optimizations are restricted in MSVC builds.
+
+🚀 Override Plan for MSVC Cancellations
+🔹 Enable RTTI & Exceptions → Modify compiler flags to allow full functionality. 🔹 Re-enable Disabled Dependencies → Ensure LibEdit, ZLIB, and Terminfo are properly linked. 🔹 Optimize Multiprocess Handling → Remove unnecessary MSVC restrictions on threading. 🔹 Validate Clang-Tidy Execution → Ensure proper formatting and static analysis.
+
+Next Steps
+🔹 Modify CMakeLists.txt to override MSVC cancellations. 🔹 Run integration tests to confirm stability across Windows builds. 🔹 Ensure full compatibility with Bitcoin Core’s latest updates.
+
+This will unlock hidden functionalities and ensure maximum flexibility in our Bitcoin toolkit! 🔥
