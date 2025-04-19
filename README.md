@@ -63,3 +63,13 @@ Hover descriptions for buttons to reduce clutter
 Copyable WIF outputs for seamless use
 
 🔜 maybe I can take that donation address off the top and not need it at all.
+
+I decided to add another feature along with including all the hashing functions of the main chain.
+
+This was acomplished building this piece by piece and if it works for you, please send a small portion of a single block reward to the address at the top of the readme. I did not include any type of undermining and included everything in one file so as to not have a normal user jumping around from file to file to figure out what to do and why. I believe things should be open source and free. The time and effort I put into this, didn't cost me anything other than years worth of investing and learning. lol. Worth it!
+
+✅ Enable block template creation for mining operations ✅ Allow users to submit solutions for mined blocks ✅ Implement real-time tracking of chain tips ✅ Ensure compatibility with Bitcoin Core’s mining protocol ✅ Optimize nonce selection and fee adjustments
+
+This will be the basis for our mining system, ensuring smooth block generation and submission while following Bitcoin’s consensus rules. 🚀
+
+End run, it will function as a bitcoin wallet with puzzle solving capabilities. If i feel nice, I'll incorporate a dark mode. XD
