@@ -1,6 +1,9 @@
 # MasterKeyProgram
 WIF key generator for doing the generating of the WIFs(made for puzzle solving)
 
+INSTRUCTIONS:
+
+Current, you only need the .py and .bat file in the same folder. make a directory for it, it'll produce files in it. right now the raw file doesn't support any functionality other random generation and crashes if you do anything else. I figured I'd work on a stable version before next release.
 
 I was suposed to be starting a new job requiring two good legs and messed my foot up temporarily. If you want to donate for the free program and the hours I put into debugging and testing, here is my coinbase address: 34aYRB9jeSDXxNpjZBZpfETLJ2Tcw1H36G
 
